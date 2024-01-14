@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# docker-wrapper tpkg postremove - remove link to mesos-slave config
+# wrap tpkg postremove - remove link to mesos-slave config
 MESOS_CONFIG=/etc/mesos-slave/docker
-LOGROTATE_CONF=/etc/logrotate.d/docker-wrapper_logrotate
+LOGROTATE_CONF=/etc/logrotate.d/wrap_logrotate
 
 if test -L $MESOS_CONFIG ; then
   rm -f $MESOS_CONFIG

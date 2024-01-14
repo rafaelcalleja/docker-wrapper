@@ -1,4 +1,4 @@
-name: docker-wrapper
+name: wrap
 version: 0.3.3
 #package_version: 1
 maintainer: ishaikh@yp.com

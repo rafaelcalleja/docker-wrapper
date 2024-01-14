@@ -6,10 +6,9 @@ package main
 // collection of all of the Docker command-line flags and options
 
 import (
+	"github.com/jessevdk/go-flags"
 	"log"
 	"os"
-
-	"github.com/jessevdk/go-flags"
 )
 
 ///////////////////////////////////////////////////////////////////////////
@@ -51,14 +50,13 @@ type DockerFlags struct {
 	TlsKey        flags.Filename `long:"tlskey" description:"Path to TLS key file"`
 	TlsVerify     bool           `long:"tlsverify" description:"Use TLS and verify the remote"`
 	Version       bool           `long:"version" description:"Print version information and quit"`
-	// TODO: override help and version to output docker-wrapper specific info
+	// TODO: override help and version to output wrap specific info
 	// NOTE: --daemon no longer an option as of docker 1.8
 	//Daemon    bool           `short:"d" long:"daemon" description:"Enable daemon mode"`
 }
 
-// docker-wrapper: the docker run command options (the ones we care about).
+// wrap: the docker run command options (the ones we care about).
 // For now we just want to reliably get the image-name
-//
 type DockerRunCommandFlags struct {
 	// We use positional args to reliably find image (first non-option arg is
 	// image name, second is command).  This requires us to define all the
@@ -176,7 +174,7 @@ func parseCommandlineArgs(args []string) {
 		log.Printf("DEBUG: remaining ARGS = %q\n", otherArgs)
 	}
 
-	// Version & Help: print our docker-wrapper specific info before calling docker
+	// Version & Help: print our wrap specific info before calling docker
 	if dockerFlags.Help {
 		printHelpText()
 	}

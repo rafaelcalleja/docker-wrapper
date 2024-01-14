@@ -19,7 +19,7 @@ const (
 func init() {
 	optsParser.AddCommand("run",
 		"Run a command in a new container",
-		"Usage: docker run [OPTIONS] IMAGE [COMMAND] [ARG...]",
+		"Usage: wrap run [OPTIONS] IMAGE [COMMAND] [ARG...]",
 		&dockerRunFlags)
 }
 
@@ -72,7 +72,7 @@ func splitFullImageNameWithTag(full string) (string, string, error) {
 		// no tag
 		image = imageParts[0]
 	} else {
-		splitError = errors.New("docker-wrapper: Unable to split image name into parts")
+		splitError = errors.New("wrap: Unable to split image name into parts")
 	}
 	return image, tag, splitError
 }

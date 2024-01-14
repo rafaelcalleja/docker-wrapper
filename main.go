@@ -16,10 +16,14 @@ var (
 	dockerFullImageName string // globals to store imagename:tag from {{docker run}} command line (see run_cmd.go)
 	dockerImageName     string
 	dockerImageTag      string
+	newDockerArgs       []string
 
 	// from -e ENV vars
 	mesosTaskId   string
 	marathonAppId string
+
+	DefaultLogFileName string = "/var/log/wrap.log"
+	NoOutput                  = ""
 )
 
 // if debug is on logging goes to stdout/stderr, else setup logging to append
@@ -34,7 +38,7 @@ var logFile *os.File
 
 type WrapperRunModule interface {
 	Priority() int
-	HandleRun(DockerFlags, DockerRunCommandFlags) []string
+	HandleRun(*DockerFlags, *DockerRunCommandFlags) []string
 }
 
 // plural for sorting purposes
@@ -80,8 +84,8 @@ func main() {
 	setupLogging()
 	defer teardownLogging()
 
-	// create new string slice without "docker-wrapper" first element, in case we need to add args
-	newDockerArgs := os.Args[1:]
+	// create new string slice without "wrap" first element, in case we need to add args
+	newDockerArgs = os.Args[1:]
 
 	// using a command-line parsing library can help grab IMAGE name
 	// reliably but has it's own drawbacks: can be stale if new options are
@@ -100,7 +104,8 @@ func main() {
 		sort.Sort(registeredRunModules)
 		for _, mod := range registeredRunModules {
 			// run the module and collect any new docker run params to inject
-			modArgs := mod.HandleRun(dockerFlags, dockerRunFlags)
+			modArgs := mod.HandleRun(&dockerFlags, &dockerRunFlags)
+
 			if modArgs != nil && len(modArgs) > 0 {
 				newDockerArgs = injectRunArgs(newDockerArgs, modArgs)
 			}
@@ -115,17 +120,21 @@ func main() {
 //***************************************************************************
 //***************************************************************************
 
-// isDebugEnabled checks for --debug or DOCKER_WRAPPER_DEBUG env var.
+// isDebugEnabled checks for --debug or WRAP_DEBUG env var.
 // used in setupLogging() and elsewhere.
 func isDebugEnabled() bool {
-	return (os.Getenv("DOCKER_WRAPPER_DEBUG") == "1") || dockerFlags.Debug
+	return (os.Getenv("WRAP_DEBUG") == "1") || dockerFlags.Debug
 }
 
 // attempt to log to a file - otherwise stdout
 func setupLogging() {
 	if !isDebugEnabled() {
-		// TODO: allow override - possibly via ENV DOCKER_WRAPPER_LOG=...
-		logFileName := "/var/log/docker-wrapper.log"
+		// TODO: allow override - possibly via ENV WRAP_LOG=...
+		logFileName := os.Getenv("WRAP_LOG")
+		if logFileName == "" {
+			logFileName = DefaultLogFileName
+		}
+
 		logFile, err := os.OpenFile(logFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 		if err != nil {
 			// check if we can write to directory - otherwise just log to stderr?
@@ -153,11 +162,11 @@ func teardownLogging() {
 }
 
 func printHelpText() {
-	fmt.Println("Usage: docker-wrapper [OPTIONS] COMMAND [arg...]\n\nA Thin wrapper around docker\n")
+	fmt.Println("Usage: wrap [OPTIONS] COMMAND [arg...]\n\nA Thin wrapper around docker\n")
 }
 
 func printVersionText() {
-	fmt.Printf("docker-wrapper version: %v\n", VERSION)
+	fmt.Printf("wrap version: %v\n", VERSION)
 }
 
 ////////////////

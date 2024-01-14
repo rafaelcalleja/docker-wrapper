@@ -4,7 +4,7 @@
 
 package main
 
-// collection of utility methods used in docker-wrapper
+// collection of utility methods used in wrap
 
 import (
 	"encoding/json"
@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	// docker-wrapper is expected to be installed *outside* of below safe PATH so
+	// wrap is expected to be installed *outside* of below safe PATH so
 	// we can find the real docker binary in dockerDo
-	// e.g. /go/bin/docker-wrapper
+	// e.g. /go/bin/wrap
 	SafeDockerSearchPath = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 )
 
@@ -65,6 +65,17 @@ func sh(name string, argv ...string) (string, error) {
 // dockerExec execs out to real `docker` binary with argv arguments, replacing
 // current process
 func dockerExec(argv []string) {
+	if NoOutput != "" {
+		devNull, err := os.OpenFile("/dev/null", os.O_RDWR, 0)
+		if err != nil {
+			panic(err)
+		}
+		defer devNull.Close()
+
+		syscall.Dup2(int(devNull.Fd()), int(os.Stdout.Fd()))
+		syscall.Dup2(int(devNull.Fd()), int(os.Stderr.Fd()))
+	}
+
 	// grab the (pre-update) environment for our Exec later
 	env := os.Environ()
 

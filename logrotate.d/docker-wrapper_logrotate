@@ -1,4 +1,4 @@
-/var/log/docker-wrapper.log {
+/var/log/wrap.log {
     missingok
     weekly
     rotate 10
@@ -6,4 +6,4 @@
     compress
     notifempty
 }
-# NOTE: config is docker-wrapper_logrotate to avoid clash with binary name and .gitignore
+# NOTE: config is wrap_logrotate to avoid clash with binary name and .gitignore

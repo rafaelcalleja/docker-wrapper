@@ -15,7 +15,7 @@ type ExampleRunModule struct {
 }
 
 // HandleRun implements the WrapperRunModule interface
-func (m *ExampleRunModule) HandleRun(flags DockerFlags, runFlags DockerRunCommandFlags) []string {
+func (m *ExampleRunModule) HandleRun(flags *DockerFlags, runFlags *DockerRunCommandFlags) []string {
 	log.Println("INFO: ExampleRunModule.HandleRun(...)")
 
 	// look for a few 'standard' vars and craft our own
@@ -31,5 +31,5 @@ func (m *ExampleRunModule) HandleRun(flags DockerFlags, runFlags DockerRunComman
 
 // init calls RegisterRunModule
 func init() {
-	RegisterRunModule(&ExampleRunModule{})
+	//RegisterRunModule(&ExampleRunModule{})
 }

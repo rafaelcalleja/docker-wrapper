@@ -34,19 +34,19 @@ func TestIsDebugEnabled(t *testing.T) {
 
 	var result bool
 
-	os.Unsetenv("DOCKER_WRAPPER_DEBUG")
+	os.Unsetenv("WRAP_DEBUG")
 	result = isDebugEnabled()
 	if result {
-		t.Errorf("isDebugEnabled should return false when DOCKER_WRAPPER_DEBUG is not set. got %v", result)
+		t.Errorf("isDebugEnabled should return false when WRAP_DEBUG is not set. got %v", result)
 	}
 
-	os.Setenv("DOCKER_WRAPPER_DEBUG", "1")
+	os.Setenv("WRAP_DEBUG", "1")
 	result = isDebugEnabled()
 	if !result {
-		t.Errorf("isDebugEnabled should return true when DOCKER_WRAPPER_DEBUG is set. got %v", result)
+		t.Errorf("isDebugEnabled should return true when WRAP_DEBUG is set. got %v", result)
 	}
 
-	os.Unsetenv("DOCKER_WRAPPER_DEBUG")
+	os.Unsetenv("WRAP_DEBUG")
 }
 
 var exampleRun1Args = []string{"run",
@@ -68,7 +68,7 @@ var exampleRun1Args = []string{"run",
 				"-c", "while : ; do uptime; sleep 10 ; done"}
 var exampleRun1Image = "centos" // ":centos6.6"
 
-//********************
+// ********************
 // An extreme example of what we could be working with:
 // - note the image name embedded without a tag
 // - note the last arg is part of CMD and has a colon ':'

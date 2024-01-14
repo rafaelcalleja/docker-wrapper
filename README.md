@@ -5,26 +5,26 @@ It knows about the Docker CLI flags and options and can parse a `docker
 run` command for image name, allowing you to insert command line 
 arguments and flags at run time.
 
-We use the docker-wrapper with Mesos.  Mesos uses the docker CLI to run 
+We use the wrap with Mesos.  Mesos uses the docker CLI to run 
 Docker Containerizer commands and this wrapper can intercept them and 
 modify docker run arguments before passing on to the real docker CLI.
 
-## Building `docker-wrapper`
+## Building `wrap`
 
 This is a golang binary, so you need a working golang dev environment.
 
-    go get github.com/yp-engineering/docker-wrapper
+    go get github.com/yp-engineering/wrap
 
 For developing new features, you will likely be working from a 
 branch in your own fork, so the above line just gets the skeletal 
-default repo, replace with your own docker-wrapper repo URL.
+default repo, replace with your own wrap repo URL.
 
-    cd ./docker-wrapper
+    cd ./wrap
     
-    # local binary ./docker-wrapper
+    # local binary ./wrap
     make
     
-    # install binary into $GOPATH/bin/docker-wrapper
+    # install binary into $GOPATH/bin/wrap
     make install
 
 Once you have built the binary, you can copy it to other machines as it 
@@ -96,15 +96,15 @@ Version updates are manual at this time (be sure to change the
 
 ## Mesos Slave Config
 
-To setup your mesos-slave to use the new docker-wrapper binary, just 
+To setup your mesos-slave to use the new wrap binary, just 
 place the full path to the docker binary into `/etc/mesos-slave/docker` 
 config file:
 
     # /etc/mesos-slave/docker
-    /home/ops/bin/docker-wrapper
+    /home/ops/bin/wrap
 
 Or if your OS package does not support automatic /etc/mesos feature 
-loading, use the `--docker $GOPATH/bin/docker-wrapper` command line 
+loading, use the `--docker $GOPATH/bin/wrap` command line 
 arguments to start the Mesos agent.
 
 ### Package Installation
@@ -113,14 +113,14 @@ We use tpkg.github.io packaging.
 
 The tpkg can be installed under any `TPKG_HOME`:
 
-    sudo TPKG_HOME=/home/ops tpkg -i docker-wrapper
+    sudo TPKG_HOME=/home/ops tpkg -i wrap
 
 The Mesos Slave configuration (`/etc/mesos-slave/docker`) will then 
-point to `/home/ops/bin/docker-wrapper` binary (uses `$TPKG_HOME`).
+point to `/home/ops/bin/wrap` binary (uses `$TPKG_HOME`).
 
 ## Logging and Debug
 
-Docker-wrapper tries to output a logfile to `/var/log/docker-wrapper.log`
+wrap tries to output a logfile to `/var/log/wrap.log`
 
-If `DOCKER_WRAPPER_DEBUG=1` (or --debug docker flag) then the log is 
+If `WRAP_DEBUG=1` (or --debug docker flag) then the log is 
 output to STDERR.

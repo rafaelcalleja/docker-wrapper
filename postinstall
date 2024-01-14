@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-# docker-wrapper tpkg postinstall
-# - update the path to docker-wrapper based on install
+# wrap tpkg postinstall
+# - update the path to wrap based on install
 # - link the mesos-slave config
 # - install logrotate conf
 
 PKG_CONFIG=$TPKG_HOME/etc/mesos-slave/docker
 ETC_CONFIG=/etc/mesos-slave/docker
 
-LOGROTATE_CONF=$TPKG_HOME/etc/logrotate.d/docker-wrapper_logrotate
+LOGROTATE_CONF=$TPKG_HOME/etc/logrotate.d/wrap_logrotate
 INSTALL=$(INSTALL:-install)
 
 # UPDATE the wrapper path in packaged config file, in case TPKG_HOME is different
-echo "$TPKG_HOME/bin/docker-wrapper" > "$PKG_CONFIG"
+echo "$TPKG_HOME/bin/wrap" > "$PKG_CONFIG"
 
 # LINK the TPKG mesos-slave config to /etc
 if test -d /etc/mesos-slave ; then
