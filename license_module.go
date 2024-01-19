@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -17,20 +18,55 @@ type TokenDecryptModule struct {
 // HandleRun implements the WrapperRunModule interface
 func (m *TokenDecryptModule) HandleRun(flags *DockerFlags, runFlags *DockerRunCommandFlags) []string {
 	token := os.Getenv("TOKEN")
+	passphrase := os.Getenv("GPG_PASSPHRASE")
+
+	if passphrase != "" {
+		gpgWrapper, err := ioutil.TempFile("", "gpg-wrapper")
+		if err != nil {
+			log.Fatalf("Error creating wrapper:", err)
+		}
+		defer os.Remove(gpgWrapper.Name())
+
+		scriptContent := `#!/bin/bash
+gpg --batch --pinentry-mode loopback --passphrase $GPG_PASSPHRASE --yes $@`
+		err = gpgWrapper.Chmod(0755)
+		if err != nil {
+			log.Fatalf("Error changing perms wrapper:", err)
+		}
+
+		_, err = gpgWrapper.WriteString(scriptContent)
+
+		if err != nil {
+			log.Fatalf("Error writing GPG wrapper:", err)
+		}
+
+		gpgWrapper.Close()
+
+		os.Setenv("SOPS_GPG_EXEC", gpgWrapper.Name())
+	}
 
 	encryptedEnvVariable, err := base64.StdEncoding.DecodeString(token)
 	if err != nil {
 		log.Fatalf("Error invalid license:", err)
 	}
 
-	decryptedValue, err := decrypt.Data(encryptedEnvVariable, "env")
+	decryptedValue, err := decrypt.Data(encryptedEnvVariable, "dotenv")
 	if err != nil {
 		log.Fatalf("Error unknown license: %v", err)
 	}
 
+	envMap := make(map[string]string)
+
+	for _, line := range strings.Split(string(decryptedValue), "\n") {
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) == 2 {
+			envMap[parts[0]] = parts[1]
+		}
+	}
+
 	log.Printf("INFO: Using license token: %s\n", token)
 
-	command := strings.Fields(string(decryptedValue))
+	command := strings.Fields(envMap["token"])
 
 	valueToFind := runFlags.Args.Image
 	imageIndex := m.getIndexOf(valueToFind, newDockerArgs)
